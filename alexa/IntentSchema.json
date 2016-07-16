@@ -19,7 +19,7 @@
       ]
     },
     {
-      "intent": "DontKnowIntent"
+      "intent": "ProductAttribIntent"
     },
     {
       "intent": "AMAZON.StartOverIntent"
