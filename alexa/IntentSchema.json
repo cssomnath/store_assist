@@ -9,7 +9,7 @@
         }
       ]
     },
-        {
+    {
       "intent": "ProductOnlyIntent",
       "slots": [
         {
@@ -19,7 +19,13 @@
       ]
     },
     {
-      "intent": "ProductAttribIntent"
+      "intent": "ProductAttribIntent",
+      "slots": [
+        {
+          "name": "Attribute",
+          "type": "LIST_OF_ATTRIBUTES"
+        }
+      ]
     },
     {
       "intent": "AMAZON.StartOverIntent"

@@ -19,50 +19,23 @@
      * When editing your questions pay attention to your punctuation. Make sure you use question marks or periods.
      * Make sure the first answer is the correct one. Set at least 4 answers, any extras will be shuffled in.
      */
-    var questions = [
-        {
-            "Reindeer have very thick coats, how many hairs per square inch do they have?": [
-                "13,000",
-                "1,200",
-                "5,000",
-                "700",
-                "1,000",
-                "120,000"
-            ]
+    var productAttribs = {
+        "samsung galaxy" : {
+            "plans" : [
+                "Verizon monthly twenty dollar, unlimited call, ten gb data",
+                "AT&T month twenty five dollars, unlimited call, ten gb data"
+            ],
+            "best_plan" : 1
         },
-        {
-            "The 1964 classic Rudolph The Red Nosed Reindeer was filmed in:": [
-                "Japan",
-                "United States",
-                "Finland",
-                "Germany"
-            ]
-        },
-        {
-            "Santas reindeer are cared for by one of the Christmas elves, what is his name?": [
-                "Wunorse Openslae",
-                "Alabaster Snowball",
-                "Bushy Evergreen",
-                "Pepper Minstix"
-            ]
-        },
-        {
-            "If all of Santas reindeer had antlers while pulling his Christmas sleigh, they would all be:": [
-                "Girls",
-                "Boys",
-                "Girls and boys",
-                "No way to tell"
-            ]
-        },
-        {
-            "What do Reindeer eat?": [
-                "Lichen",
-                "Grasses",
-                "Leaves",
-                "Berries"
-            ]
+
+        "iphone six" : {
+            "plans" : [
+                "Verizon monthly thirty dollar, unlimited call, ten gb data",
+                "AT&T month twenty five dollars, unlimited call, ten gb data"
+            ],
+            "best_plan" : 2
         }
-    ];
+    };
 
     // Route the incoming request based on type (LaunchRequest, IntentRequest,
     // etc.) The JSON body of the request is provided in the event parameter.
@@ -144,6 +117,8 @@
             }
         }
 
+        console.log("Inent name ", intentName);
+
         // dispatch custom intents to handlers here
         if ("ProductInfoIntent" === intentName) {
             handleProductRequest(intent, session, callback);
@@ -199,7 +174,7 @@
         var sessionAttributes = {};
         var productName = getProductName(intent);
 
-        if (!productName) {
+        if (!productName || !(productName in productAttribs)) {
             speechOutput = "Unfortunately, we don't have this item. Do you like to know about some other product";
         } else {
             sessionAttributes.productName = productName;
@@ -211,14 +186,36 @@
     }
 
     function handleInfoRequest(intent, session, callback) {
-        var speechOutput = "";
+        var attribName = "", speechOutput = "";
         var sessionAttributes = session.attributes;
         var productName = session.attributes && session.attributes.productName;
 
         if (!productName) {
-            speechOutput = "I didn't get, which item you are looking for?";
+            speechOutput = "I didn't get, which item you are looking for.";
         } else {
-            speechOutput = "cool dude";
+            speechOutput =  "I don't know about the product feature you would like to know. " +
+                "Do you mind if I call a sales representative to help you";
+
+            var attribSlotFilled = intent.slots && intent.slots.Attribute && intent.slots.Attribute.value;
+            console.log("Intent name ", intent.name, "Intent slots ", intent.slots, attribSlotFilled);
+
+            if (attribSlotFilled) {
+                attribName = intent.slots.Attribute.value;
+                var attribs = productAttribs[productName];
+                console.log("Attribute Name ", attribName);
+
+                var planKeys = ["plan", "plans", "price"];
+                var bestPlanKeys = ["best plan", "best plans"];
+
+
+                if (bestPlanKeys.indexOf(attribName) >=0 ) {
+                    speechOutput = "Our best plan for " + productName + " is ";
+                    speechOutput += attribs.plans[attribs.best_plan];
+                }  else if (planKeys.indexOf(attribName) >=0 ) {
+                    speechOutput == "Available plans for " + productName + " are ";
+                    speechOutput = attribs["plans"].join(" ");
+                }
+            }
         }
 
         callback(sessionAttributes,
@@ -245,9 +242,9 @@
 
     function getProductName(intent) {
         var productName;
-        var answerSlotFilled = intent.slots && intent.slots.Product && intent.slots.Product.value;
-        if (answerSlotFilled) {
-            productName = intent.slots.Product.value;
+        var productSlotFilled = intent.slots && intent.slots.Product && intent.slots.Product.value;
+        if (productSlotFilled) {
+            productName = intent.slots.Product.value.toLowerCase();
         }
         console.log("Product Name ", productName);
         return productName;

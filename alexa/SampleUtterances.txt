@@ -5,10 +5,8 @@ ProductInfoIntent Do you carry {Product}
 
 ProductOnlyIntent {Product}
 
-ProductAttribIntent price
-ProductAttribIntent plans
-ProductAttribIntent best plan
-
+ProductAttribIntent {Attribute}
+ProductAttribIntent tell me about {Attribute}
 
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
