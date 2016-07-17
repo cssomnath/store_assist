@@ -133,6 +133,10 @@
                 handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.CancelIntent" === intentName) {
                 handleFinishSessionRequest(intent, session, callback);
+            } else if ("AMAZON.NoIntent" == intentName) {
+                handleNonInentReuest(intent, session, callback);
+            } else if ("AMAZON.YesIntent" == intentName) {
+                handleNonInentReuest(intent, session, callback);
             } else {
                 throw "Invalid intent";
             }
@@ -171,6 +175,10 @@
             var sessionAttributes = {};
             var productName = getProductName(intent);
 
+            if (session.attributes && productName in session.attributes) {
+                sessionAttributes = session.attributes;
+            }
+
             if (!productName || !(productName in productAttribs)) {
                 speechOutput = "Unfortunately, we don't have this item. Do you like to buy some other product?";
             } else {
@@ -197,6 +205,12 @@
             }
             callback(sessionAttributes,
                 buildSpeechletResponse(CARD_TITLE, speechOutput, speechOutput, false));
+        }
+
+        function handleNonInentReuest(intent, session, callback) {
+            callback(session.attributes,
+                buildSpeechletResponseWithoutCard("Is there anything else I can do for you. Feel free to ask Viva",
+                 "", true));                
         }
 
         function handleRepeatRequest(intent, session, callback) {
