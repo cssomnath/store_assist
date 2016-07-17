@@ -18,3 +18,5 @@ ProductInfoIntent I want to bike {Product} {Attribute}
 
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
+
+AMAZON.StopIntent Good bye
