@@ -15,26 +15,111 @@
 
         'use strict';
 
+        console.log('Loading function');
+        var aws = require('aws-sdk');
+        var ddb = new aws.DynamoDB();
+
+        function getUser(userid) {
+            var q = ddb.getItem({
+                AttributesToGet: [
+                    "Num_Id"
+                ],
+                TableName: "ProductCatalog",
+                Key: {
+                    Id: {'N': userid}
+                }
+            }, function (err, data) {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                else {
+                    console.log(data);
+                }
+            });
+            console.log(q);
+            console.log("end of getUser");
+            return q;
+        }
+
+        function updateId(userid) {
+            var params = {
+                TableName: 'ProductCatalog',
+                Key: {Id: {'N': userid}},
+                UpdateExpression: "SET Num_Id = Num_Id + :inc",
+                ExpressionAttributeValues: {
+                    ':inc': {N: '1'}
+                }
+            };
+
+            ddb.updateItem(params, function (err, data) {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                else {
+                    console.log(data);
+                }
+            });
+        }
+
+        function updateRep(userid) {
+            var params = {
+                TableName: 'ProductCatalog',
+                Key: {Id: {'N': userid}},
+                UpdateExpression: "SET Num_Rep = Num_Rep + :inc",
+                ExpressionAttributeValues: {
+                    ':inc': {N: '1'}
+                }
+            };
+
+            ddb.updateItem(params, function (err, data) {
+                if (err) {
+                    console.log(err);
+                    return err;
+                }
+                else {
+                    console.log(data);
+                }
+            });
+        }
+
+
         var attributeNameType = {
             "gray" : "color",
             "gold" : "color",
-            "silver" : "color"
+            "silver" : "color",
+            "32 gigabytes" :  "memory",
+            "16 gigabytes" : "memory"
         }
-        /**
-         * When editing your questions pay attention to your punctuation. Make sure you use question marks or periods.
-         * Make sure the first answer is the correct one. Set at least 4 answers, any extras will be shuffled in.
-         */
+
         var productAttribs = {
             "iphone" :  {
-                "color" : ["silver", "gray"],
-                "aisle" : "G Six, Electronics section"
+                "prod_attr" : {
+                    "color" : ["silver"],
+                    "memory" : ["32 gigabytes"],
+                    "avail_type" : ["silver, 32 gigabytes"]
+                },
+                "aisle" : "G Seven, Electronics section",
+                "warranty" : "Warranty is 12 months. Total care device insurance is available for $10 a month.",
+                "deals" : "Yes, ATT has a $200 coupon and offers the phone for $50 a month."
             },
-            "iphone six" : {
-                "color" : ["silver", "gray"],
-                "aisle" : "G Six, Electronics section"
+            "iphone 6" :  {
+                "prod_attr" : {
+                    "color" : ["silver"],
+                    "memory" : ["32 gigabytes"],
+                    "avail_type" : ["silver, 32 gigabytes"]
+                },
+                "aisle" : "G Seven, Electronics section",
+                "warranty" : "Warranty is 12 months. Total care device insurance is available for $10 a month.",
+                "deals" : "Yes, ATT has a $200 coupon and offers the phone for $50 a month."
             },
             "kids bike" : {
-                "aisle" : "G twelve"
+                "prod_attr" : {
+                    "avail_type" : ["between 12 to 20 inches"]
+                },
+                "aisle" : "G twelve",
+                "deals" : "Huffy bikes are having five to ten percent off"
             }
         };
 
@@ -43,15 +128,6 @@
         exports.handler = function (event, context) {
             try {
                 console.log("event.session.application.applicationId=" + event.session.application.applicationId);
-
-                /**
-                 * Uncomment this if statement and populate with your skill's application ID to
-                 * prevent someone else from configuring a skill that sends requests to this function.
-                 */
-
-        //     if (event.session.application.applicationId !== "amzn1.echo-sdk-ams.app.05aecccb3-1461-48fb-a008-822ddrt6b516") {
-        //         context.fail("Invalid Application ID");
-        //      }
 
                 if (event.session.new) {
                     onSessionStarted({requestId: event.request.requestId}, event.session);
@@ -109,14 +185,14 @@
                 intentName = intentRequest.intent.name;
 
             // handle yes/no intent after the user has been prompted
-            if (session.attributes && session.attributes.userPromptedToContinue) {
-                delete session.attributes.userPromptedToContinue;
-                if ("AMAZON.NoIntent" === intentName) {
-                    handleFinishSessionRequest(intent, session, callback);
-                } else if ("AMAZON.YesIntent" === intentName) {
-                    handleRepeatRequest(intent, session, callback);
-                }
-            }
+            // if (session.attributes && session.attributes.userPromptedToContinue) {
+            //     delete session.attributes.userPromptedToContinue;
+            //     if ("AMAZON.NoIntent" === intentName) {
+            //         handleFinishSessionRequest(intent, session, callback);
+            //     } else if ("AMAZON.YesIntent" === intentName) {
+            //         handleRepeatRequest(intent, session, callback);
+            //     }
+            // }
 
             console.log("Inent name ", intentName);
 
@@ -134,9 +210,9 @@
             } else if ("AMAZON.CancelIntent" === intentName) {
                 handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.NoIntent" == intentName) {
-                handleNonInentReuest(intent, session, callback);
+                handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.YesIntent" == intentName) {
-                handleNonInentReuest(intent, session, callback);
+                handleYesReuest(intent, session, callback);
             } else {
                 throw "Invalid intent";
             }
@@ -154,7 +230,7 @@
         }
 
         // ------- Skill specific business logic -------
-        var CARD_TITLE = "Store Assist"; // Be sure to change this for your skill.
+        var CARD_TITLE = "Viva"; // Be sure to change this for your skill.
 
         function getWelcomeResponse(callback) {
             var sessionAttributes = {},
@@ -180,7 +256,7 @@
             }
 
             if (!productName || !(productName in productAttribs)) {
-                speechOutput = "Unfortunately, we don't have this item. Do you like to buy some other product?";
+                speechOutput = "Unfortunately, we don't have this item. Can I help you with some other product?";
             } else {
                 var attrib = getAttribute(intent);
                 console.log("Attributes", attrib);
@@ -189,30 +265,31 @@
                 sessionAttributes.attribName = attrib.name;
                 sessionAttributes.attrType = attrib.type;
 
-                speechOutput = "You can find " + productName + " it in the aisle " +
-                    productAttribs[productName]["aisle"];
+                var prodAttr = productAttribs[productName].prod_attr;
 
                 if (attrib.name && attrib.type) {
-                    var available_attribs = productAttribs[productName][attrib.type];
+                    var available_attribs = prodAttr[attrib.type];
                     console.log(available_attribs, available_attribs.indexOf(attrib.name));
 
                     if (available_attribs.indexOf(attrib.name) < 0) {
-                        speechOutput = "Unfortunately, we don't have " + attrib.name + " " + productName; 
-                        speechOutput += ". We have " + productName + " of following " + attrib.type + "s, " +
-                            available_attribs.join(", ");
+                        speechOutput = "Sorry, we don't have " + attrib.name + " " + productName + ". "; 
                     }
                 }
+                
+                var availType = "";
+                if (prodAttr.avail_type) {
+                    availType = prodAttr.avail_type
+                }
+
+                speechOutput += "We have " + productName + " " + availType + ". It can be found in the aisle " +
+                    productAttribs[productName]["aisle"];
+
             }
             callback(sessionAttributes,
                 buildSpeechletResponse(CARD_TITLE, speechOutput, speechOutput, false));
         }
 
-        function handleNonInentReuest(intent, session, callback) {
-            callback(session.attributes,
-                buildSpeechletResponseWithoutCard("Is there anything else I can do for you. Feel free to ask Viva",
-                 "", true));                
-        }
-
+  
         function handleRepeatRequest(intent, session, callback) {
             // Repeat the previous speechOutput and repromptText from the session attributes if available
             // else start a new game session
@@ -224,10 +301,21 @@
             }
         }
 
+        function handleYesRequest(intent, session, callback) {
+            // Repeat the previous speechOutput and repromptText from the session attributes if available
+            // else start a new game session
+            if (session.attributes || session.attributes.callCustomerRep) {
+                var speechOutput = "Notification sent, a customer representative will be with you shortly"
+         
+                callback(session.attributes,
+                    buildSpeechletResponseWithoutCard(speechOutput, speechOutput, true));
+            }
+        }
+
         function handleFinishSessionRequest(intent, session, callback) {
             // End the session with a "Good bye!" if the user wants to quit the game
             callback(session.attributes,
-                buildSpeechletResponseWithoutCard("Good bye!. Hope I could answer your question. If you need anything more please ask Viva",
+                buildSpeechletResponseWithoutCard("Good bye!. Feel free to ask Viva if you need any other assistance",
                  "", true));
         }
 
