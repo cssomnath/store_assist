@@ -14,15 +14,6 @@
       ]
     },
     {
-      "intent": "ProductOnlyIntent",
-      "slots": [
-        {
-          "name": "Product",
-          "type": "LIST_OF_PRODUCTS"
-        }
-      ]
-    },
-    {
       "intent": "AMAZON.StartOverIntent"
     },
     {
