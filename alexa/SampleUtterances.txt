@@ -16,8 +16,5 @@ ProductInfoIntent I am looking for {Product} {Attribute}
 ProductInfoIntent Do you carry {Product} {Attribute}
 ProductInfoIntent I want to bike {Product} {Attribute}
 
-
-ProductOnlyIntent {Product}
-
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
