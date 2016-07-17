@@ -102,7 +102,7 @@
                 },
                 "aisle" : "G Seven, Electronics section",
                 "warranty" : "Warranty is 12 months. Total care device insurance is available for $10 a month.",
-                "deals" : "Yes, ATT has a $200 coupon and offers the phone for $50 a month."
+                "deals" : "Yes, AT&T has a $200 coupon and offers the phone for $50 a month."
             },
             "iphone 6" :  {
                 "prod_attr" : {
@@ -112,14 +112,14 @@
                 },
                 "aisle" : "G Seven, Electronics section",
                 "warranty" : "Warranty is 12 months. Total care device insurance is available for $10 a month.",
-                "deals" : "Yes, ATT has a $200 coupon and offers the phone for $50 a month."
+                "deals" : "Yes, AT&T has a $200 coupon and offers the phone for $50 a month."
             },
             "kids bike" : {
                 "prod_attr" : {
                     "avail_type" : ["between 12 to 20 inches"]
                 },
                 "aisle" : "G twelve",
-                "deals" : "Huffy bikes are having five to ten percent off"
+                "deals" : "Huffy bikes are having 5 to 10% off"
             }
         };
 
@@ -184,16 +184,6 @@
             var intent = intentRequest.intent,
                 intentName = intentRequest.intent.name;
 
-            // handle yes/no intent after the user has been prompted
-            // if (session.attributes && session.attributes.userPromptedToContinue) {
-            //     delete session.attributes.userPromptedToContinue;
-            //     if ("AMAZON.NoIntent" === intentName) {
-            //         handleFinishSessionRequest(intent, session, callback);
-            //     } else if ("AMAZON.YesIntent" === intentName) {
-            //         handleRepeatRequest(intent, session, callback);
-            //     }
-            // }
-
             console.log("Inent name ", intentName);
 
             // dispatch custom intents to handlers here
@@ -212,7 +202,7 @@
             } else if ("AMAZON.NoIntent" == intentName) {
                 handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.YesIntent" == intentName) {
-                handleYesReuest(intent, session, callback);
+                handleYesRequest(intent, session, callback);
             } else {
                 throw "Invalid intent";
             }
@@ -249,10 +239,15 @@
         function handleProductRequest(intent, session, callback) {
             var speechOutput = "";
             var sessionAttributes = {};
-            var productName = getProductName(intent);
+            var productName = getProductName(intent, session);
 
-            if (session.attributes && productName in session.attributes) {
+            if (session.attributes) {
                 sessionAttributes = session.attributes;
+            }
+
+            if (!sessionAttributes.update_user) {
+                sessionAttributes.update_user = true;
+                updateId('123');
             }
 
             if (!productName || !(productName in productAttribs)) {
@@ -262,29 +257,36 @@
                 console.log("Attributes", attrib);
 
                 sessionAttributes.productName = productName;
-                sessionAttributes.attribName = attrib.name;
-                sessionAttributes.attrType = attrib.type;
 
-                var prodAttr = productAttribs[productName].prod_attr;
+                if (attrib.name && attrib.name == "warranty") {
+                    speechOutput = productAttribs[productName].warranty;
+                } else if (attrib.name && (attrib.name == "deals" || attrib.name == "deal")) {
+                    speechOutput = productAttribs[productName].deals;
+                    session.attributes.callCustomerRep = true;
+                    speechOutput += ". Would you like to talk to a sales representative?"
+                } else {
+                    var prodAttr = productAttribs[productName].prod_attr;
 
-                if (attrib.name && attrib.type) {
-                    var available_attribs = prodAttr[attrib.type];
-                    console.log(available_attribs, available_attribs.indexOf(attrib.name));
+                    if (attrib.name && attrib.type) {
+                        var available_attribs = prodAttr[attrib.type];
+                        console.log(available_attribs, available_attribs.indexOf(attrib.name));
 
-                    if (available_attribs.indexOf(attrib.name) < 0) {
-                        speechOutput = "Sorry, we don't have " + attrib.name + " " + productName + ". "; 
-                    }
-                }
+                        if (available_attribs.indexOf(attrib.name) < 0) {
+                            speechOutput = "Sorry, we don't have " + productName + " " + attrib.name + ". "; 
+                        }
+                    }  
                 
-                var availType = "";
-                if (prodAttr.avail_type) {
-                    availType = prodAttr.avail_type
-                }
+                    var availType = "";
+                    if (prodAttr.avail_type) {
+                        availType = prodAttr.avail_type
+                    }
 
-                speechOutput += "We have " + productName + " " + availType + ". It can be found in the aisle " +
-                    productAttribs[productName]["aisle"];
+                    speechOutput += "We have " + productName + " " + availType + ". It can be found in the aisle " +
+                        productAttribs[productName]["aisle"];
+                }
 
             }
+
             callback(sessionAttributes,
                 buildSpeechletResponse(CARD_TITLE, speechOutput, speechOutput, false));
         }
@@ -301,14 +303,19 @@
             }
         }
 
+
         function handleYesRequest(intent, session, callback) {
             // Repeat the previous speechOutput and repromptText from the session attributes if available
             // else start a new game session
             if (session.attributes || session.attributes.callCustomerRep) {
-                var speechOutput = "Notification sent, a customer representative will be with you shortly"
-         
+                var speechOutput = "A representative will be with you shortly. Can I help you with anything else?"
+                session.attributes.callCustomerRep = false;
                 callback(session.attributes,
                     buildSpeechletResponseWithoutCard(speechOutput, speechOutput, true));
+
+                updateRep('123');
+            } else {
+                getWelcomeResponse(callback);
             }
         }
 
@@ -319,12 +326,17 @@
                  "", true));
         }
 
-        function getProductName(intent) {
+        function getProductName(intent, session) {
             var productName;
             var productSlotFilled = intent.slots && intent.slots.Product && intent.slots.Product.value;
             if (productSlotFilled) {
                 productName = intent.slots.Product.value.toLowerCase();
             }
+
+            if (!productName && session.attributes && session.attributes.productName) {
+                productName = session.attributes.productName;
+            }
+
             console.log("Product Name ", productName);
             return productName;
         }

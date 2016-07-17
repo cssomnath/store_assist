@@ -16,6 +16,13 @@ ProductInfoIntent i am looking for {Product} {Attribute}
 ProductInfoIntent do you carry {Product} {Attribute}
 ProductInfoIntent i want to bike {Product} {Attribute}
 
+ProductInfoIntent do you have {Attribute} on the product
+ProductInfoIntent is it {Attribute}
+ProductInfoIntent is there {Attribute}
+ProductInfoIntent what is the {Attribute}
+ProductInfoIntent any {Attribute}
+
+
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
 
