@@ -123,10 +123,6 @@
             // dispatch custom intents to handlers here
             if ("ProductInfoIntent" === intentName) {
                 handleProductRequest(intent, session, callback);
-            } else if ("ProductOnlyIntent" === intentName) {
-                handleProductRequest(intent, session, callback);
-            } else if ("ProductAttribIntent" === intentName) {
-                handleInfoRequest(intent, session, callback);
             } else if ("AMAZON.StartOverIntent" === intentName) {
                 getWelcomeResponse(callback);
             } else if ("AMAZON.RepeatIntent" === intentName) {
@@ -193,7 +189,7 @@
                     console.log(available_attribs, available_attribs.indexOf(attrib.name));
 
                     if (available_attribs.indexOf(attrib.name) < 0) {
-                        speechOutput = "We don't have " + attrib.name + " " + productName; 
+                        speechOutput = "Unfortunately, we don't have " + attrib.name + " " + productName; 
                         speechOutput += ". We have " + productName + " of following " + attrib.type + "s, " +
                             available_attribs.join(", ");
                     }
