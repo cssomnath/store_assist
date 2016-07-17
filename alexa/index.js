@@ -132,7 +132,7 @@
             } else if ("AMAZON.RepeatIntent" === intentName) {
                 handleRepeatRequest(intent, session, callback);
             } else if ("AMAZON.HelpIntent" === intentName) {
-                handleGetHelpRequest(intent, session, callback);
+                getWelcomeResponse(callback);
             } else if ("AMAZON.StopIntent" === intentName) {
                 handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.CancelIntent" === intentName) {
@@ -185,7 +185,7 @@
                 sessionAttributes.attribName = attrib.name;
                 sessionAttributes.attrType = attrib.type;
 
-                speechOutput = "That's actualy a great thing to buy. You can find it in the aisle " +
+                speechOutput = "You can find " + productName + " it in the aisle " +
                     productAttribs[productName]["aisle"];
 
                 if (attrib.name && attrib.type) {
