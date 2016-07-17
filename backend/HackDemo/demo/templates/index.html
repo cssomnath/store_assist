@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hackthon Demo</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+<table>
+    <tr>
+        <td class="h1">Photo</td>
+        <td class="h1">Information</td>
+    </tr>
+    <tr>
+    <td><canvas id="image" width="600" height="396"></canvas></td>
+    <td>
+        <table class="table" id="information">
+        <tr>
+            <td>Customer ID</td>
+            <td id="id"></td>
+        </tr>
+        <tr>
+            <td>Age</td>
+            <td id="age"></td>
+        </tr>
+        <tr>
+        <td>Gender</td>
+        <td id="gender"></td>
+        </tr>
+        <tr>
+            <td>Smile</td>
+            <td id="smile"></td>
+        </tr>
+        </table>
+    </td>
+    </tr>
+</table>
+<div class="h1">Data History</div>
+<table class="table" id="history">
+    <tr>
+        <td>Customer ID</td>
+        <td>Age</td>
+        <td>Gender</td>
+        <td>Smile</td>
+    </tr>
+</table>
+</body>
+<script>
+    function loadImage()
+    {
+      var canvas = document.getElementById('image');
+      var context = canvas.getContext('2d');
+
+      var x = 0;
+      var y = 0;
+      var width = 600;
+      var height = 396;
+      var imageObj = new Image();
+
+      imageObj.onload = function() {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        context.drawImage(imageObj, x, y, width, height);
+      };
+      imageObj.src = 'http://localhost:8085/demo/api/image?time=' + new Date();
+    }
+    function loadInformation(){
+      $.ajax({
+            url: 'http://localhost:8085/demo/api/information?time=' + new Date()
+        }).then(function(data) {
+           $('#id').text(data.id);
+           $('#age').text(data.age);
+           $('#gender').text(data.gender);
+           $('#smile').text(data.smile);
+        });
+    }
+    function reload(){
+        loadImage();
+        loadInformation();
+    }
+    setInterval(reload, 500);
+
+    $(document).ready(function() {
+        $.ajax({
+            url: "http://localhost:8085/demo/api/history"
+        }).then(function(data) {
+           for (var i=0;i<data.id.length;i++){
+               $('#history').append('<tr><td>'+data.id[i]+'</td><td>'+data.age[i]+'</td><td>'+data.gender[i]+'</td><td>'+data.smile[i]+'</td></tr>');
+           }
+        });
+    });
+
+</script>
+</html>
