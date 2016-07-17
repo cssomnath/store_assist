@@ -1,12 +1,23 @@
 ProductInfoIntent I would like to know more about {Product}
+ProductInfoIntent Where can I find {Product}
 ProductInfoIntent I am looking for {Product}
 ProductInfoIntent Do you carry {Product}
+ProductInfoIntent I want to buy {Product}
+
+ProductInfoIntent I would like to know more about {Attribute} {Product}
+ProductInfoIntent Where can I find {Attribute} {Product}
+ProductInfoIntent I am looking for {Attribute} {Product}
+ProductInfoIntent Do you carry {Attribute} {Product}
+ProductInfoIntent I want to buy {Attribute} {Product}
+
+ProductInfoIntent I would like to know more about {Product} {Attribute}
+ProductInfoIntent Where can I find {Product} {Attribute}
+ProductInfoIntent I am looking for {Product} {Attribute}
+ProductInfoIntent Do you carry {Product} {Attribute}
+ProductInfoIntent I want to bike {Product} {Attribute}
 
 
 ProductOnlyIntent {Product}
-
-ProductAttribIntent {Attribute}
-ProductAttribIntent tell me about {Attribute}
 
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
