@@ -43,6 +43,7 @@
         }
 
         function updateId(userid) {
+            console.log("Triggering the camera");
             var params = {
                 TableName: 'ProductCatalog',
                 Key: {Id: {'N': userid}},
@@ -64,6 +65,7 @@
         }
 
         function updateRep(userid) {
+            console.log("Triggering slack");
             var params = {
                 TableName: 'ProductCatalog',
                 Key: {Id: {'N': userid}},
@@ -203,6 +205,8 @@
                 handleFinishSessionRequest(intent, session, callback);
             } else if ("AMAZON.YesIntent" == intentName) {
                 handleYesRequest(intent, session, callback);
+            } else if ("CallSalesRepIntent" == intentName) {
+                handleSalesRepRequest(intent, session, callback);
             } else {
                 throw "Invalid intent";
             }
@@ -305,10 +309,8 @@
 
 
         function handleYesRequest(intent, session, callback) {
-            // Repeat the previous speechOutput and repromptText from the session attributes if available
-            // else start a new game session
             if (session.attributes || session.attributes.callCustomerRep) {
-                var speechOutput = "A representative will be with you shortly. Can I help you with anything else?"
+                var speechOutput = "A representative will be with you shortly. Can I help you with anything else?";
                 session.attributes.callCustomerRep = false;
                 callback(session.attributes,
                     buildSpeechletResponseWithoutCard(speechOutput, speechOutput, true));
@@ -317,6 +319,17 @@
             } else {
                 getWelcomeResponse(callback);
             }
+        }
+
+        function handleSalesRepRequest(intent, session, callback) {
+            var speechOutput = "A representative will be with you shortly. Can I help you with anything else?";
+            if (session && session.attributes) {
+                session.attributes.callCustomerRep = false;
+            }
+            
+            callback(session.attributes,
+                    buildSpeechletResponseWithoutCard(speechOutput, speechOutput, true));
+            updateRep('123');
         }
 
         function handleFinishSessionRequest(intent, session, callback) {
