@@ -22,10 +22,14 @@ ProductInfoIntent is there {Attribute}
 ProductInfoIntent what is the {Attribute}
 ProductInfoIntent any {Attribute}
 
+CallSalesRepIntent Can I talk to a sales representative
+CallSalesRepIntent sales representative
+CallSalesRepIntent Call sales representative
+CallSalesRepIntent Call sales rep
+
 
 AMAZON.StartOverIntent start
 AMAZON.StartOverIntent new
 
 AMAZON.StopIntent good bye
 AMAZON.StopIntent thanks
-AMAZON.StopIntent no thanks
