@@ -4,12 +4,14 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from PIL import Image
 import json
+import os
+information_folder=os.path.dirname(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 def index(request):
     return render(request, 'index.html')
 
 def image(request):
     try:
-        with open("/Users/kuolin/Documents/PycharmProjects/untitled3/newest.jpg", "rb") as f:
+        with open(os.path.join(information_folder,'newest.jpg'), "rb") as f:
             return HttpResponse(f.read(), content_type="image/jpeg")
     except:
         red = Image.new('RGBA', (1, 1), "white")
@@ -19,7 +21,7 @@ def image(request):
 
 def information(request):
     try:
-        with open("/Users/kuolin/Documents/PycharmProjects/untitled3/output_newest.txt", "r") as f:
+        with open(os.path.join(information_folder,'output_newest.txt'), "r") as f:
             information=f.readline().strip().split('\t')
             data={'id':information[0].replace('.jpg',''),'age':information[1],'gender':information[2],'smile':information[3]}
             return HttpResponse(json.dumps(data), content_type="application/json")
@@ -29,7 +31,7 @@ def information(request):
 
 def past_information(request):
     try:
-        with open("/Users/kuolin/Documents/PycharmProjects/untitled3/output_history.txt", "r") as f:
+        with open(os.path.join(information_folder,'output_history.txt'), "r") as f:
             ages=[]
             gender=[]
             smile=[]

@@ -3,9 +3,9 @@ import json
 import requests
 import os,sys
 class FacePPClient:
-    api_key='f991a286bb66459553a0fcf40a27b89a'
-    api_secret='ZtaL6eozjOqBBFg5ounC3MZF1G4oGlSX'
-    headers = {'Content-Type':'application/octet-stream','Ocp-Apim-Subscription-Key':'58ceffd8e4f14b47bc7d218e8513c3d3'}
+    headers = {'Content-Type':'application/octet-stream','Ocp-Apim-Subscription-Key':''}
+    def __init__(self,key):
+        self.headers['Ocp-Apim-Subscription-Key']=key
     def get_information(self,img_path):
         with open(img_path,'rb') as infile:
             img_data=infile.read()
