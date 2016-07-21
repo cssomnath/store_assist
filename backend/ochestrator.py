@@ -33,7 +33,7 @@ class Ochestrater:
         self.initialize_check_id()
         self.face_client=FacePPClient(subscription_key)
         self.monitor=Monitor()
-        self.slacker=Slacker('api-key')
+        self.slacker=Slacker(slack_key)
     def initialize_check_id(self):
         try:
             response = table.get_item(
